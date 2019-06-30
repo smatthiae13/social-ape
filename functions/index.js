@@ -23,3 +23,23 @@ exports.getScreams = functions.https.onRequest((req, res) => {
     })
     .catch(err => console.error(err));
 });
+
+exports.createScream = functions.https.onRequest((req, res) => {
+    const newScream = {                                     //this will be our object
+        body: req.body.body,
+        userhandle: req.body.userhandle,
+        createdAt: admin.firestore.Timestamp.fromDate(new Date())
+    };
+
+    admin.firestore()    //persist it from our db
+    .collection('screams')
+    .add(newScream)      //takes a json obj and add it to the database  - returns a promise
+    .then((doc) => {        //givers us a document reference as a response
+        res.json({ message: `document ${doc.id} created successfully`});                    //if we are here, the docusmtn has been created, and we can return a response
+    })             
+    .catch(err => {
+        res.status(500).json({ error: `something went wrong`});  //because of an error, we need to return a status code
+        console.err(err);
+    });
+
+});
